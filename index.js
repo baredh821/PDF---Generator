@@ -7,6 +7,16 @@ const axios = require("axios");
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
+function username() {
+  return inquirer.prompt([
+    {
+      type: "input",
+      name: "name",
+      message: "What is your GitHub UserName?"
+    }
+  ]);
+}
+
 function color() {
   return inquirer.prompt([
     {
@@ -18,9 +28,8 @@ function color() {
   ]);
 }
 
-async function github() {
-
-  const movieUrl = `https://api.github.com/users/baredh821?`;
+async function github(userid) {
+  const movieUrl = `https://api.github.com/users/${userid.name}?`;
   let res = await axios.get(movieUrl);
   console.log(res.data.name);
   console.log(res.data.location);
@@ -199,11 +208,14 @@ img {
 async function init() {
   console.log("hi");
   try {
+
+    const userid = await username();
+    
     const answers = await color();
 
-    const users = await github();
+    const users = await github(userid);
     console.log(users.data.name, users.data.location, users.data.blog, "here with users")
-    const html = generateHTML(users, answers);
+    const html = generateHTML(users, answers, userid);
 
     await writeFileAsync("index.html", html);
 
